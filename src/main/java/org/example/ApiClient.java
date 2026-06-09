@@ -1,3 +1,4 @@
+package org.example;
 import com.google.gson.Gson;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

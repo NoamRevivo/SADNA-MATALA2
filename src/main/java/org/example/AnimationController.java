@@ -1,45 +1,36 @@
-import javax.swing.Timer;
+package org.example;
 import java.awt.Point;
 import java.util.List;
-
-public class AnimationController {
-
-    private Timer timer;
+public class AnimationController
+{
     private boolean isAnimationRunning;
-
     public AnimationController() {
         this.isAnimationRunning = false;
     }
-
     public void startAnimation(List<Point> path, int delayMs, MazeDisplayPanel displayPanel) {
         if (path == null || path.isEmpty()) return;
-
         isAnimationRunning = true;
         displayPanel.resetDisplay();
-
-        // משתמשים במערך בעל תא יחיד כדי שנוכל לקדם את האינדקס בתוך הפעולה של הטיימר
-        final int[] currentStepIndex = {0};
-
-        timer = new Timer(delayMs, event -> {
-
-            if (currentStepIndex[0] < path.size()) {
-                displayPanel.addPathStep(path.get(currentStepIndex[0]));
-                currentStepIndex[0]++;
-            } else {
-                stopAnimation();
+        Thread animationThread = new Thread(() -> {
+            try {
+                for (Point step : path) {
+                    javax.swing.SwingUtilities.invokeLater(() -> {
+                        displayPanel.addPathStep(step);
+                    });
+                    Thread.sleep(delayMs);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
+            stopAnimation();
         });
 
-        timer.start();
+        animationThread.start();
     }
-
     private void stopAnimation() {
-        if (timer != null && timer.isRunning()) {
-            timer.stop();
-        }
+
         isAnimationRunning = false;
     }
-
     public boolean isAnimating() {
         return isAnimationRunning;
     }

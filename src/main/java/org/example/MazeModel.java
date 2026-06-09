@@ -1,5 +1,4 @@
 package org.example;
-
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
@@ -15,12 +14,10 @@ public class MazeModel
         this.width = image.getWidth();
         this.height = image.getHeight();
         this.mazeData = new boolean[height][width];
-
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
-
                 int pixelData = image.getRGB(x, y);
                 Color pixelColor = new Color(pixelData, true);
                 boolean isWhite = (pixelColor.getRed() == COLOR_MAX_VALUE &&
