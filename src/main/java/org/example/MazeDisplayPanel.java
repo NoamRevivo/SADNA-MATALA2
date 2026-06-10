@@ -10,12 +10,12 @@ public class MazeDisplayPanel extends JPanel
     private MazeModel mazeModel;
     private RenderConfig config;
     private List<Point> currentPath;
+
     public MazeDisplayPanel()
     {
         this.currentPath = new ArrayList<>();
     }
-    public void setMazeData(MazeModel model, RenderConfig config)
-    {
+    public void setMazeData(MazeModel model, RenderConfig config) {
         this.mazeModel = model;
         this.config = config;
         this.currentPath.clear();
@@ -24,20 +24,36 @@ public class MazeDisplayPanel extends JPanel
         setPreferredSize(new Dimension(reqWidth, reqHeight));
         revalidate();
         repaint();
+        SwingUtilities.invokeLater(() -> scrollToPoint(0, 0));
     }
     public void addPathStep(Point point)
     {
         currentPath.add(point);
+        int cellX = point.x * CELL_SIZE_PX;
+        int cellY = point.y * CELL_SIZE_PX;
+        scrollToPoint(cellX, cellY);
         repaint();
     }
-    public void resetDisplay()
-    {
+    public void resetDisplay() {
         currentPath.clear();
+        scrollToPoint(0, 0);
         repaint();
+    }
+    private void scrollToPoint(int targetX, int targetY) {
+        Container parent = getParent();
+        if (parent instanceof JViewport) {
+            JViewport viewport = (JViewport) parent;
+            int viewWidth = viewport.getWidth();
+            int viewHeight = viewport.getHeight();
+            int viewX = targetX - (viewWidth / 2) + (CELL_SIZE_PX / 2);
+            int viewY = targetY - (viewHeight / 2) + (CELL_SIZE_PX / 2);
+            viewX = Math.max(0, Math.min(viewX, getWidth() - viewWidth));
+            viewY = Math.max(0, Math.min(viewY, getHeight() - viewHeight));
+            viewport.setViewPosition(new Point(viewX, viewY));
+        }
     }
     @Override
-    protected void paintComponent(Graphics g)
-    {
+    protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (mazeModel == null || config == null) return;
         Color wallColor = Color.decode(config.getWallCellColor());
@@ -49,25 +65,20 @@ public class MazeDisplayPanel extends JPanel
         {
             for (int col = 0; col < mazeWidth; col++)
             {
-                if (mazeModel.isWall(col, row))
-                {
+                if (mazeModel.isWall(col, row)) {
                     g.setColor(wallColor);
-                } else
-                {
+                } else {
                     g.setColor(Color.WHITE);
                 }
                 g.fillRect(col * CELL_SIZE_PX, row * CELL_SIZE_PX, CELL_SIZE_PX, CELL_SIZE_PX);
             }
         }
-        if (config.isDrawGrid())
-        {
+        if (config.isDrawGrid()) {
             g.setColor(gridColor);
-            for (int row = 0; row <= mazeHeight; row++)
-            {
+            for (int row = 0; row <= mazeHeight; row++) {
                 g.drawLine(0, row * CELL_SIZE_PX, mazeWidth * CELL_SIZE_PX, row * CELL_SIZE_PX);
             }
-            for (int col = 0; col <= mazeWidth; col++)
-            {
+            for (int col = 0; col <= mazeWidth; col++) {
                 g.drawLine(col * CELL_SIZE_PX, 0, col * CELL_SIZE_PX, mazeHeight * CELL_SIZE_PX);
             }
         }
