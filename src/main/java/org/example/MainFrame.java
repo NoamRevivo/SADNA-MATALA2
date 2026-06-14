@@ -82,19 +82,31 @@ public class MainFrame extends JFrame
                             "• צבע נתיב: %s\n" +
                             "• ציור רשת: %s\n" +
                             "• זמן השהיה (אנימציה): %d מ\"ש\n\n" +
-                            "לחץ על 'אישור' כדי להגדיר את מידות המבוך ולטעון אותו.",
+                            "לחץ על 'אישור' כדי להמשיך, או 'קבל הגדרות חדשות' כדי לרענן שוב.",
                     currentConfig.getWallCellColor(),
                     currentConfig.getPathColor(),
                     currentConfig.isDrawGrid() ? "כן" : "לא",
                     currentConfig.getAnimationDelayMs()
             );
-            JOptionPane.showMessageDialog(this,
+            Object[] options = {"אישור", "קבל הגדרות חדשות"};
+            int choice = JOptionPane.showOptionDialog(
+                    this,
                     configDetails,
                     "נתוני שרת נטענו",
-                    JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.INFORMATION_MESSAGE,
+                    null,
+                    options,
+                    options[0]
+            );
+            if (choice == 1) {
+                fetchConfigFromServer();
+                return;
+            }
             setupPanel.setInputComponentsEnabled(true);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "שגיאה במשיכת נתונים: " + ex.getMessage(), "שגיאה", JOptionPane.ERROR_MESSAGE);
+            setupPanel.setInputComponentsEnabled(true); // שחרור הרכיבים למקרה שהמשתמש ירצה לנסות שוב מהפאנל
         }
     }
     private void fetchMazeFromServer() {
