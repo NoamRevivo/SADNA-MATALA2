@@ -5,19 +5,18 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 
 public class MainFrame extends JFrame
-{//קבועים לגודל החלון
+{
     private static final int WINDOW_WIDTH = 800;
     private static final int WINDOW_HEIGHT = 600;
-//
     private ApiClient apiClient;
     private RenderConfig currentConfig;
     private MazeModel mazeModel;
     private PathFinder pathFinder;
     private AnimationController animController;
-
     private SetupPanel setupPanel;
     private MazeDisplayPanel mazePanel;
     private JButton checkSolutionButton;
+    private int [][] startPoint;
 
     public MainFrame() {
         super(" API "+" יצירת מבוך ויזאולי מתוך תמונת"+" JAVA "+" תרגיל ");
@@ -54,6 +53,11 @@ public class MainFrame extends JFrame
         setupListeners();
         fetchConfigFromServer();
     }
+    public void startPoint()
+    {
+        this.startPoint = new int[0][0];
+
+    }
     private void setupListeners() {
         setupPanel.getRefreshButton().addActionListener(event -> fetchConfigFromServer());
         setupPanel.getGetMazeButton().addActionListener(event -> fetchMazeFromServer());
@@ -66,7 +70,10 @@ public class MainFrame extends JFrame
             if (solution.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "אין פתרון חוקי עבור המבוך הזה.", "תוצאת סריקה", JOptionPane.INFORMATION_MESSAGE);
             } else {
-                animController.startAnimation(solution, currentConfig.getAnimationDelayMs(), mazePanel);
+                checkSolutionButton.setEnabled(false);
+                animController.startAnimation(solution, currentConfig.getAnimationDelayMs(), mazePanel, () -> {
+                    checkSolutionButton.setEnabled(true);
+                });
             }
         });
     }
@@ -106,7 +113,7 @@ public class MainFrame extends JFrame
             setupPanel.setInputComponentsEnabled(true);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "שגיאה במשיכת נתונים: " + ex.getMessage(), "שגיאה", JOptionPane.ERROR_MESSAGE);
-            setupPanel.setInputComponentsEnabled(true); // שחרור הרכיבים למקרה שהמשתמש ירצה לנסות שוב מהפאנל
+            setupPanel.setInputComponentsEnabled(true);
         }
     }
     private void fetchMazeFromServer() {
@@ -125,6 +132,7 @@ public class MainFrame extends JFrame
             JOptionPane.showMessageDialog(this, "שגיאה בהורדת התמונה: " + ex.getMessage(), "שגיאה", JOptionPane.ERROR_MESSAGE);
         }
     }
+
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

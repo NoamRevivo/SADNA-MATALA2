@@ -82,8 +82,15 @@ public class MazeDisplayPanel extends JPanel
                 g.drawLine(col * CELL_SIZE_PX, 0, col * CELL_SIZE_PX, mazeHeight * CELL_SIZE_PX);
             }
         }
+        g.setColor(new Color(46, 204, 113));
+        g.fillRect(0, 0, CELL_SIZE_PX, CELL_SIZE_PX);
+        g.setColor(new Color(231, 76, 60));
+        g.fillRect((mazeWidth - 1) * CELL_SIZE_PX, (mazeHeight - 1) * CELL_SIZE_PX, CELL_SIZE_PX, CELL_SIZE_PX);
         g.setColor(pathColor);
         for (Point step : currentPath) {
+            if ((step.x == 0 && step.y == 0) || (step.x == mazeWidth - 1 && step.y == mazeHeight - 1)) {
+                continue;
+            }
             g.fillRect(step.x * CELL_SIZE_PX, step.y * CELL_SIZE_PX, CELL_SIZE_PX, CELL_SIZE_PX);
         }
     }

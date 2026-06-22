@@ -24,7 +24,6 @@ public class PathFinder
         if (maze.isWall(startPoint.x, startPoint.y) || maze.isWall(endPoint.x, endPoint.y)) {
             return Collections.emptyList();
         }
-
         boolean[][] visited = new boolean[height][width];
         Point[][] parentMap = new Point[height][width];
         Queue<Point> queue = new LinkedList<>();

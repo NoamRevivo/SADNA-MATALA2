@@ -1,16 +1,18 @@
 package org.example;
 import java.awt.Point;
 import java.util.List;
+
 public class AnimationController
 {
     private boolean isAnimationRunning;
     public AnimationController() {
         this.isAnimationRunning = false;
     }
-    public void startAnimation(List<Point> path, int delayMs, MazeDisplayPanel displayPanel) {
+    public void startAnimation(List<Point> path, int delayMs, MazeDisplayPanel displayPanel, Runnable onFinish) {
         if (path == null || path.isEmpty()) return;
         isAnimationRunning = true;
         displayPanel.resetDisplay();
+
         Thread animationThread = new Thread(() -> {
             try {
                 for (Point step : path) {
@@ -23,12 +25,13 @@ public class AnimationController
                 Thread.currentThread().interrupt();
             }
             stopAnimation();
+            if (onFinish != null) {
+                javax.swing.SwingUtilities.invokeLater(onFinish);
+            }
         });
-
         animationThread.start();
     }
     private void stopAnimation() {
-
         isAnimationRunning = false;
     }
     public boolean isAnimating() {

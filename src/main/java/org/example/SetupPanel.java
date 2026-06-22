@@ -15,6 +15,9 @@ public class SetupPanel extends JPanel
     private JButton refreshButton;
     private JButton getMazeButton;
     private JLabel configDetailsLabel;
+    private int refreshCount = 0;
+    private int getMazeCount = 0;
+    private JLabel countersLabel;
 
     public SetupPanel() {
         setLayout(new BorderLayout());
@@ -33,16 +36,22 @@ public class SetupPanel extends JPanel
         configDetailsLabel = new JLabel("ממתין להגדרות מהשרת...", SwingConstants.CENTER);
         configDetailsLabel.setFont(new Font("Arial", Font.BOLD, 14));
         configDetailsLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+        countersLabel = new JLabel("רענונים: 0 | מבוכים: 0");
+        inputPanel.add(countersLabel);
+        refreshButton.addActionListener(e -> { refreshCount++; countersLabel.setText("רענונים: " + refreshCount + " | מבוכים: " + getMazeCount); });
+        getMazeButton.addActionListener(e -> { getMazeCount++; countersLabel.setText("רענונים: " + refreshCount + " | מבוכים: " + getMazeCount); });
         add(inputPanel, BorderLayout.NORTH);
         add(configDetailsLabel, BorderLayout.SOUTH);
         setInputComponentsEnabled(false);
     }
+
     public void setInputComponentsEnabled(boolean enabled)
     {
         widthField.setEnabled(enabled);
         heightField.setEnabled(enabled);
         getMazeButton.setEnabled(enabled);
     }
+
     public void updateConfigDisplay(RenderConfig config)
     {
         if (config == null) return;
@@ -53,24 +62,39 @@ public class SetupPanel extends JPanel
                 config.getAnimationDelayMs());
         configDetailsLabel.setText(displayInfo);
     }
-    private int validateDimension(String textInput)
+    private int validateField(JTextField field, String fieldName)
     {
         try
         {
-            int value = Integer.parseInt(textInput.trim());
+            int value = Integer.parseInt(field.getText().trim());
             if (value >= MIN_MAZE_SIZE && value <= MAX_MAZE_SIZE)
             {
+                field.setBackground(Color.WHITE);
                 return value;
             }
         }
         catch (NumberFormatException e)
         {
         }
-        JOptionPane.showMessageDialog(this, "הערך חייב להיות מספר בין 5 ל-100. הוגדר ל-30 כברירת מחדל.", "שגיאת קלט", JOptionPane.WARNING_MESSAGE);
+        field.setBackground(new Color(255, 180, 180));
+        JOptionPane.showMessageDialog(this,
+                "הערך בשדה " + fieldName + " חייב להיות מספר בין " + MIN_MAZE_SIZE + " ל-" + MAX_MAZE_SIZE + ".\nהוגדר ל-" + DEFAULT_MAZE_SIZE + " כברירת מחדל.",
+                "שגיאת קלט",
+                JOptionPane.ERROR_MESSAGE);
+
+        field.setText(String.valueOf(DEFAULT_MAZE_SIZE));
         return DEFAULT_MAZE_SIZE;
     }
-    public int getValidatedWidth() { return validateDimension(widthField.getText()); }
-    public int getValidatedHeight() { return validateDimension(heightField.getText()); }
+
+    public int getValidatedWidth() {
+        return validateField(widthField, "רוחב");
+    }
+
+    public int getValidatedHeight() {
+        return validateField(heightField, "גובה");
+    }
+
     public JButton getRefreshButton() { return refreshButton; }
+
     public JButton getGetMazeButton() { return getMazeButton; }
 }
