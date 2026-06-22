@@ -81,20 +81,17 @@ public class SetupPanel extends JPanel
                 "הערך בשדה " + fieldName + " חייב להיות מספר בין " + MIN_MAZE_SIZE + " ל-" + MAX_MAZE_SIZE + ".\nהוגדר ל-" + DEFAULT_MAZE_SIZE + " כברירת מחדל.",
                 "שגיאת קלט",
                 JOptionPane.ERROR_MESSAGE);
-
         field.setText(String.valueOf(DEFAULT_MAZE_SIZE));
         return DEFAULT_MAZE_SIZE;
     }
-
-    public int getValidatedWidth() {
+    public int getValidatedWidth()
+    {
         return validateField(widthField, "רוחב");
     }
-
-    public int getValidatedHeight() {
+    public int getValidatedHeight()
+    {
         return validateField(heightField, "גובה");
     }
-
     public JButton getRefreshButton() { return refreshButton; }
-
     public JButton getGetMazeButton() { return getMazeButton; }
 }

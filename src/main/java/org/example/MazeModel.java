@@ -1,21 +1,17 @@
 package org.example;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-
 public class MazeModel
 {
     private boolean[][] mazeData;
     private int width;
     private int height;
-    private BufferedImage originalImage;
 
     public void decodeImage(BufferedImage image)
     {
-        this.originalImage = image;
         this.width = image.getWidth();
         this.height = image.getHeight();
         this.mazeData = new boolean[height][width];
-
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
@@ -25,7 +21,6 @@ public class MazeModel
                 boolean isWhite = (pixelColor.getRed() > 240 &&
                         pixelColor.getGreen() > 240 &&
                         pixelColor.getBlue() > 240);
-
                 mazeData[y][x] = isWhite;
             }
         }
@@ -37,8 +32,6 @@ public class MazeModel
         }
         return !mazeData[y][x];
     }
-
     public int getWidth() { return width; }
     public int getHeight() { return height; }
-    public BufferedImage getImage() { return originalImage; }
 }

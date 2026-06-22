@@ -88,12 +88,17 @@ public class MazeDisplayPanel extends JPanel
                 g2d.drawLine(x, offsetY, x, displayH + offsetY);
             }
         }
-        g2d.setColor(new Color(46, 204, 113, 200));
+        g2d.setColor(new Color(46, 204, 113));
         g2d.fillRect(offsetX, offsetY, (int)Math.ceil(cellW), (int)Math.ceil(cellH));
-        g2d.setColor(new Color(231, 76, 60, 200));
+        g2d.setColor(new Color(231, 76, 60));
         int endX = offsetX + (int) ((mazeWidth - 1) * cellW);
         int endY = offsetY + (int) ((mazeHeight - 1) * cellH);
         g2d.fillRect(endX, endY, (int)Math.ceil(cellW), (int)Math.ceil(cellH));
+        int markerSize = (int) Math.max(15, Math.min(cellW, cellH) * 1.2);
+        g2d.setColor(new Color(46, 204, 113));
+        g2d.fillRect(offsetX - markerSize, offsetY, markerSize, markerSize);
+        g2d.setColor(new Color(231, 76, 60));
+        g2d.fillRect(offsetX + displayW, offsetY + displayH - markerSize, markerSize, markerSize);
         if (currentPath.size() > 0) {
             Color pathColor = Color.decode(config.getPathColor());
             g2d.setColor(pathColor);
