@@ -7,11 +7,15 @@ public class MazeModel
     private boolean[][] mazeData;
     private int width;
     private int height;
+    private BufferedImage originalImage;
+
     public void decodeImage(BufferedImage image)
     {
+        this.originalImage = image;
         this.width = image.getWidth();
         this.height = image.getHeight();
         this.mazeData = new boolean[height][width];
+
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
@@ -26,12 +30,15 @@ public class MazeModel
             }
         }
     }
+
     public boolean isWall(int x, int y) {
         if (x < 0 || x >= width || y < 0 || y >= height) {
             return true;
         }
         return !mazeData[y][x];
     }
+
     public int getWidth() { return width; }
     public int getHeight() { return height; }
+    public BufferedImage getImage() { return originalImage; }
 }

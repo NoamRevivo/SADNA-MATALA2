@@ -16,7 +16,7 @@ public class MainFrame extends JFrame
     private SetupPanel setupPanel;
     private MazeDisplayPanel mazePanel;
     private JButton checkSolutionButton;
-    private int [][] startPoint;
+
 
     public MainFrame() {
         super(" API "+" יצירת מבוך ויזאולי מתוך תמונת"+" JAVA "+" תרגיל ");
@@ -53,11 +53,7 @@ public class MainFrame extends JFrame
         setupListeners();
         fetchConfigFromServer();
     }
-    public void startPoint()
-    {
-        this.startPoint = new int[0][0];
 
-    }
     private void setupListeners() {
         setupPanel.getRefreshButton().addActionListener(event -> fetchConfigFromServer());
         setupPanel.getGetMazeButton().addActionListener(event -> fetchMazeFromServer());

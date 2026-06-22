@@ -6,7 +6,6 @@ import java.util.List;
 
 public class MazeDisplayPanel extends JPanel
 {
-    private static final int CELL_SIZE_PX = 20;
     private MazeModel mazeModel;
     private RenderConfig config;
     private List<Point> currentPath;
@@ -19,79 +18,96 @@ public class MazeDisplayPanel extends JPanel
         this.mazeModel = model;
         this.config = config;
         this.currentPath.clear();
-        int reqWidth = model.getWidth() * CELL_SIZE_PX;
-        int reqHeight = model.getHeight() * CELL_SIZE_PX;
-        setPreferredSize(new Dimension(reqWidth, reqHeight));
         revalidate();
         repaint();
-        SwingUtilities.invokeLater(() -> scrollToPoint(0, 0));
     }
+    @Override
+    public Dimension getPreferredSize() {
+        Container parent = getParent();
+        if (parent instanceof JViewport) {
+            return parent.getSize();
+        }
+        return new Dimension(600, 600);
+    }
+
     public void addPathStep(Point point)
     {
         currentPath.add(point);
-        int cellX = point.x * CELL_SIZE_PX;
-        int cellY = point.y * CELL_SIZE_PX;
-        scrollToPoint(cellX, cellY);
         repaint();
     }
     public void resetDisplay() {
         currentPath.clear();
-        scrollToPoint(0, 0);
         repaint();
-    }
-    private void scrollToPoint(int targetX, int targetY) {
-        Container parent = getParent();
-        if (parent instanceof JViewport) {
-            JViewport viewport = (JViewport) parent;
-            int viewWidth = viewport.getWidth();
-            int viewHeight = viewport.getHeight();
-            int viewX = targetX - (viewWidth / 2) + (CELL_SIZE_PX / 2);
-            int viewY = targetY - (viewHeight / 2) + (CELL_SIZE_PX / 2);
-            viewX = Math.max(0, Math.min(viewX, getWidth() - viewWidth));
-            viewY = Math.max(0, Math.min(viewY, getHeight() - viewHeight));
-            viewport.setViewPosition(new Point(viewX, viewY));
-        }
     }
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (mazeModel == null || config == null) return;
-        Color wallColor = Color.decode(config.getWallCellColor());
-        Color gridColor = Color.decode(config.getGridColor());
-        Color pathColor = Color.decode(config.getPathColor());
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         int mazeWidth = mazeModel.getWidth();
         int mazeHeight = mazeModel.getHeight();
-        for (int row = 0; row < mazeHeight; row++)
-        {
-            for (int col = 0; col < mazeWidth; col++)
-            {
+        int padding = 20;
+        int availableWidth = Math.max(1, getWidth() - padding * 2);
+        int availableHeight = Math.max(1, getHeight() - padding * 2);
+        double scaleX = (double) availableWidth / mazeWidth;
+        double scaleY = (double) availableHeight / mazeHeight;
+        double scale = Math.min(scaleX, scaleY);
+        int displayW = (int) (mazeWidth * scale);
+        int displayH = (int) (mazeHeight * scale);
+        int offsetX = (getWidth() - displayW) / 2;
+        int offsetY = (getHeight() - displayH) / 2;
+        double cellW = (double) displayW / mazeWidth;
+        double cellH = (double) displayH / mazeHeight;
+        Color wallColor = Color.decode(config.getWallCellColor());
+        for (int row = 0; row < mazeHeight; row++) {
+            for (int col = 0; col < mazeWidth; col++) {
                 if (mazeModel.isWall(col, row)) {
-                    g.setColor(wallColor);
+                    g2d.setColor(wallColor);
                 } else {
-                    g.setColor(Color.WHITE);
+                    g2d.setColor(Color.WHITE);
                 }
-                g.fillRect(col * CELL_SIZE_PX, row * CELL_SIZE_PX, CELL_SIZE_PX, CELL_SIZE_PX);
+                int x = offsetX + (int) (col * cellW);
+                int y = offsetY + (int) (row * cellH);
+                int w = (int) Math.ceil(cellW);
+                int h = (int) Math.ceil(cellH);
+                g2d.fillRect(x, y, w, h);
             }
         }
-        if (config.isDrawGrid()) {
-            g.setColor(gridColor);
+        if (config.isDrawGrid() && cellW > 3 && cellH > 3) {
+            Color gridColor = Color.decode(config.getGridColor());
+            g2d.setColor(new Color(gridColor.getRed(), gridColor.getGreen(), gridColor.getBlue(), 120));
+            g2d.setStroke(new BasicStroke(1));
+
             for (int row = 0; row <= mazeHeight; row++) {
-                g.drawLine(0, row * CELL_SIZE_PX, mazeWidth * CELL_SIZE_PX, row * CELL_SIZE_PX);
+                int y = offsetY + (int) (row * cellH);
+                g2d.drawLine(offsetX, y, offsetX + displayW, y);
             }
             for (int col = 0; col <= mazeWidth; col++) {
-                g.drawLine(col * CELL_SIZE_PX, 0, col * CELL_SIZE_PX, mazeHeight * CELL_SIZE_PX);
+                int x = offsetX + (int) (col * cellW);
+                g2d.drawLine(x, offsetY, x, displayH + offsetY);
             }
         }
-        g.setColor(new Color(46, 204, 113));
-        g.fillRect(0, 0, CELL_SIZE_PX, CELL_SIZE_PX);
-        g.setColor(new Color(231, 76, 60));
-        g.fillRect((mazeWidth - 1) * CELL_SIZE_PX, (mazeHeight - 1) * CELL_SIZE_PX, CELL_SIZE_PX, CELL_SIZE_PX);
-        g.setColor(pathColor);
-        for (Point step : currentPath) {
-            if ((step.x == 0 && step.y == 0) || (step.x == mazeWidth - 1 && step.y == mazeHeight - 1)) {
-                continue;
+        g2d.setColor(new Color(46, 204, 113, 200));
+        g2d.fillRect(offsetX, offsetY, (int)Math.ceil(cellW), (int)Math.ceil(cellH));
+        g2d.setColor(new Color(231, 76, 60, 200));
+        int endX = offsetX + (int) ((mazeWidth - 1) * cellW);
+        int endY = offsetY + (int) ((mazeHeight - 1) * cellH);
+        g2d.fillRect(endX, endY, (int)Math.ceil(cellW), (int)Math.ceil(cellH));
+        if (currentPath.size() > 0) {
+            Color pathColor = Color.decode(config.getPathColor());
+            g2d.setColor(pathColor);
+            float strokeWidth = (float) Math.max(2.0, Math.min(cellW, cellH) / 3.0);
+            g2d.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            for (int i = 0; i < currentPath.size() - 1; i++) {
+                Point p1 = currentPath.get(i);
+                Point p2 = currentPath.get(i + 1);
+                int x1 = offsetX + (int) (p1.x * cellW + cellW / 2);
+                int y1 = offsetY + (int) (p1.y * cellH + cellH / 2);
+                int x2 = offsetX + (int) (p2.x * cellW + cellW / 2);
+                int y2 = offsetY + (int) (p2.y * cellH + cellH / 2);
+                g2d.drawLine(x1, y1, x2, y2);
             }
-            g.fillRect(step.x * CELL_SIZE_PX, step.y * CELL_SIZE_PX, CELL_SIZE_PX, CELL_SIZE_PX);
         }
     }
 }
