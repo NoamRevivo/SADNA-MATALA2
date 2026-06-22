@@ -10,11 +10,9 @@ import java.net.http.HttpResponse;
 
 public class ApiClient {
 
-    // קבועי ה-API
     private static final String BASE_URL = "https://backend-qcf9.onrender.com/fm1";
     private static final String ENDPOINT_CONFIG = "/get-render-config";
     private static final String ENDPOINT_MAZE = "/get-maze-image";
-    // קבועי ה-API
 
     private HttpClient httpClient;
     private Gson gson;

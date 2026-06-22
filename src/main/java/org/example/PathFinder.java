@@ -4,11 +4,9 @@ import java.util.*;
 
 public class PathFinder
 {
-    //קבועים
     private static final int[] ROW_DIRECTIONS = {-1, 1, 0, 0};
     private static final int[] COL_DIRECTIONS = {0, 0, 1, -1};
     private static final int NUM_DIRECTIONS = 4;
-    //
     private MazeModel maze;
 
     public PathFinder(MazeModel maze) {
